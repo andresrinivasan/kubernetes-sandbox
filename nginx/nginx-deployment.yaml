@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-pages
+              mountPath: /usr/share/nginx/html
+          resources:
+            limits:
+              cpu: "0.25"
+              memory: "64Mi"
+            requests:
+              cpu: "0.25"
+              memory: "64Mi"
+        - name: netshoot
+          image: nicolaka/netshoot
+          command: ["/bin/bash"]
+          args: ["-c", "while true; do ping localhost; sleep 60;done"]
+          resources:
+            limits:
+              cpu: "0.25"
+              memory: "16Mi"
+            requests:
+              cpu: "0.25"
+              memory: "16Mi"
+      volumes:
+        - name: nginx-pages
+          hostPath:
+            path: /Users/andre/repos/kubernetes-sandbox/nginx/nginx-pages
+            type: Directory
